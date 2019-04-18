@@ -1,9 +1,10 @@
 library(tidyverse)
 library(tigris)
+library(lubridate)
 
 wilmington <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/05/Wilmington_ShotspotterCAD_calls.csv",
                        col_types = cols(
-                         calltime = col_character(),
+                         calltime = col_datetime(format = "%m/%d/%Y %H:%M:%S"),
                          street = col_character(),
                          crossroad1 = col_character(),
                          crossroad2 = col_character(),
@@ -22,11 +23,13 @@ wilmington <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/05/Wil
                          timeclose = col_character(),
                          Latitude = col_double(),
                          Longitude = col_double()
-                       ))
+                       )) %>%
+  filter(Latitude, Longitude) %>%
+  select(calltime, Latitude, Longitude) %>%
+  mutate(week = floor_date(calltime, "week"))
+
 
 shapes <- urban_areas(class = "sf") %>%
   filter(NAME10 == "Wilmington, NC") 
 
-wilmington <- wilmington %>%
-  filter(Latitude, Longitude)
 

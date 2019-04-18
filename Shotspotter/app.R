@@ -11,6 +11,7 @@ library(shiny)
 library(tidyverse)
 library(ggthemes)
 library(sf)
+library(gganimate)
 library(ggplot2)
 
 # Define UI for application that draws a histogram
@@ -47,8 +48,9 @@ server <- function(input, output) {
       
       ggplot(data = shapes) + 
         geom_sf() + 
-        geom_sf(data = shot_locations)
-      
+        geom_sf(data = shot_locations) +
+        coord_sf(crs = st_crs(4326)) + 
+        transition_states(week, transition_length=1, state_length = 30)
    })
 }
 
