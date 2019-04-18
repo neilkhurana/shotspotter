@@ -9,9 +9,9 @@
 
 library(shiny)
 library(tidyverse)
-
-
-wilmington <- read_csv("Wilmington_ShotspotterCAD_calls.csv")
+library(ggthemes)
+library(sf)
+library(ggplot2)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -41,11 +41,14 @@ server <- function(input, output) {
    
    output$distPlot <- renderPlot({
       # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2] 
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
+      shot_locations <- st_as_sf(wilmington,
+                                 coords = c("Longitude", "Latitude"), 
+                                 crs = 4326) 
       
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
+      ggplot(data = shapes) + 
+        geom_sf() + 
+        geom_sf(data = shot_locations)
+      
    })
 }
 
