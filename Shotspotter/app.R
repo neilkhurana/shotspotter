@@ -8,6 +8,10 @@
 #
 
 library(shiny)
+library(tidyverse)
+
+
+wilmington <- read_csv("Wilmington_ShotspotterCAD_calls.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
