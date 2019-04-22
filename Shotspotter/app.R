@@ -18,7 +18,7 @@ library(ggplot2)
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("Shots spotted in Wilmington, NC"),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
