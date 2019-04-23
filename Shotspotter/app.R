@@ -18,6 +18,9 @@ library(magick)
 library(tigris)
 library(lubridate)
 
+
+#We have decided to use the data from Wilmington, North Carolina, 
+
 wilmington <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/05/Wilmington_ShotspotterCAD_calls.csv",
                        col_types = cols(
                          calltime = col_datetime(format = "%m/%d/%Y %H:%M:%S"),
@@ -48,37 +51,51 @@ wilmington <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/05/Wil
 shapes <- urban_areas(class = "sf") %>%
   filter(NAME10 == "Wilmington, NC") 
 
-# Define UI for application that draws a histogram
+# Define UI for application that draws a animated plot
+
+
 ui <- navbarPage(
     "Shots spotted in Wilmington, NC",
    
-   # Application title
+   
+    
+  # The titles for our plot, tabs and plot are all included here
+  
    tabPanel("Home",
             fluidPage(
    
     titlePanel("Shots spotted in Wilmington, NC"),
       
-      # Show a plot of the generated distribution
       mainPanel(
           "April Chen & Neil Khurana",
 
-         plotOutput("distPlot")
+         imageOutput("shotPlot")
       )
    )
   )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required to draw an animated plot
+
 server <- function(input, output) {
    
-   output$distPlot <- renderPlot({
+   output$shotPlot <- renderImage({
      
-      # generate bins based on input$bins from ui.R
+     
+     #the outfile type is defined
+     
+     outfile <- tempfile(fileext='.gif')
+     
+     #Defined coordinate system for our map, points will overlap
+     
       shot_locations <- st_as_sf(wilmington,
                                  coords = c("Longitude", "Latitude"), 
                                  crs = 4326) 
       
-      ggplot(data = shapes) + 
+      
+      #We save our ggplot animation into p. This is so that the plot can be converted into a gif. gganimate has compatibility issues with Shiny and it's a lot easier to use GIFs instead
+      
+      p <- ggplot(data = shapes) + 
         geom_sf() + 
         geom_sf(data = shot_locations) +
         coord_sf(crs = st_crs(4326)) + 
@@ -86,8 +103,23 @@ server <- function(input, output) {
         labs(title = "Shots fired in Wilmington, NC by Week of: {closest_state}", source = 
                "ShotSpotter Data")
       
-     })}
+    
+    #Plot saved as gif
+      
+      anim_save("outfile.gif", animate(p)) 
+      
+      #Set to the default gif size, this is suitable for our page
+      
+      list(src = "outfile.gif",
+           contentType = 'image/gif'
+           # width = 400,
+           # height = 300,
+           # alt = "This is alternate text"
+      )}, deleteFile = TRUE)}
+      
 
-# Run the application 
+# Run the application
+
+
 shinyApp(ui = ui, server = server)
 
